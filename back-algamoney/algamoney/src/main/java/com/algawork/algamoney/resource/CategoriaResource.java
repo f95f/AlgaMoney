@@ -2,11 +2,14 @@ package com.algawork.algamoney.resource;
 
 import com.algawork.algamoney.model.Categoria;
 import com.algawork.algamoney.repository.CategoriaRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -17,12 +20,28 @@ public class CategoriaResource {
     private CategoriaRepository repository;
 
     @GetMapping
-    public List<Categoria> listar(){
-
-        return repository.findAll();
+    public ResponseEntity<?> listar(){
+        List<Categoria> categorias = repository.findAll();
+        return !categorias.isEmpty()? ResponseEntity.ok(categorias) : ResponseEntity.noContent().build();
 
     }
+    @PostMapping
+    //@ResponseStatus(HttpStatus.CREATED) <- não é necessária quando returno não é void;
+    public ResponseEntity<Categoria> criar(@RequestBody Categoria categoria, HttpServletResponse response){
+        Categoria categoriaSalva = repository.save(categoria);
+        URI uri = ServletUriComponentsBuilder
+                    .fromCurrentRequestUri()
+                    .path("/{id}")
+                    .buildAndExpand(categoriaSalva.getId())
+                    .toUri();
+        //response.setHeader("Location", uri.toASCIIString());
+        return ResponseEntity.created(uri).body(categoriaSalva);
+    }
 
+    @GetMapping("/{id}")
+    public Categoria buscarPorId(@PathVariable Long id){
+        return repository.findById(id).get();
+    }
 
 }
 
