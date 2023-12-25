@@ -3,6 +3,8 @@ package com.algawork.algamoney.resource;
 import com.algawork.algamoney.model.Categoria;
 import com.algawork.algamoney.repository.CategoriaRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/categorias")
@@ -27,7 +30,7 @@ public class CategoriaResource {
     }
     @PostMapping
     //@ResponseStatus(HttpStatus.CREATED) <- não é necessária quando returno não é void;
-    public ResponseEntity<Categoria> criar(@RequestBody Categoria categoria, HttpServletResponse response){
+    public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria, HttpServletResponse response){
         Categoria categoriaSalva = repository.save(categoria);
         URI uri = ServletUriComponentsBuilder
                     .fromCurrentRequestUri()
@@ -39,10 +42,18 @@ public class CategoriaResource {
     }
 
     @GetMapping("/{id}")
-    public Categoria buscarPorId(@PathVariable Long id){
-        return repository.findById(id).get();
+    public ResponseEntity<Categoria> buscarPorId(@PathVariable Long id){
+        Optional<Categoria> categoriaEncontrada = repository.findById(id);
+        return categoriaEncontrada.isPresent()? ResponseEntity.ok(categoriaEncontrada.get()) : ResponseEntity.notFound().build();
     }
-
+    /* OUTRA OPÇÂO:
+    * @GetMapping("/{codigo}")
+        public ResponseEntity<Categoria> buscarPeloCodigo(@PathVariable Long codigo) {
+            return this.categoriaRepository.findById(codigo)
+              .map(categoria -> ResponseEntity.ok(categoria))
+              .orElse(ResponseEntity.notFound().build());
+        }
+* */
 }
 
 

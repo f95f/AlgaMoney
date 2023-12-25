@@ -1,6 +1,8 @@
 package com.algawork.algamoney.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -20,6 +22,8 @@ public class Categoria {
     public Categoria() {
     }
 
+    @NotNull
+    @Size(min = 3, max = 20)
     private String nome;
 
     @Override
