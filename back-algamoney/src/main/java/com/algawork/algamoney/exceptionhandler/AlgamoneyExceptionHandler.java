@@ -1,8 +1,10 @@
 package com.algawork.algamoney.exceptionhandler;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,6 +67,18 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
         List<Erro> erros = criarListaDeErros(ex.getBindingResult());
         return handleExceptionInternal(ex, erros, headers, HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({ DataIntegrityViolationException.class })
+    protected ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,WebRequest request){
+
+        String mensagemUsuario = messageSource.getMessage("operacao.invalida", null, LocaleContextHolder.getLocale());
+        String mensagemDeveloper = ExceptionUtils.getRootCauseMessage(ex);
+
+        List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDeveloper));
+
+        return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
     private List<Erro> criarListaDeErros(BindingResult bindingResult){
         List<Erro> erros = new ArrayList<>();
 

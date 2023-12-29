@@ -1,5 +1,6 @@
 package com.algawork.algamoney.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,12 @@ public class Pessoa {
     @Embedded
     private Endereco endereco;
     private boolean ativo;
+
+    @JsonIgnore // | -> jackson ignores
+    @Transient  // | -> hibernate ignores
+    public boolean isInativo(){
+        return !this.ativo;
+    }
 
     public Pessoa() {
     }
