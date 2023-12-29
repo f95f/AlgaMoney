@@ -14,8 +14,8 @@ public class PessoaService {
     public Pessoa atualizarPessoa(Pessoa pessoa, Long id){
 
         Pessoa pessoaSalva = buscarPorId(id);
-        //BeanUtils.copyProperties(pessoaSalva, pessoa, "id");
-        return repository.save(pessoa);
+        BeanUtils.copyProperties(pessoa, pessoaSalva, "id");
+        return repository.save(pessoaSalva);
 
     }
 

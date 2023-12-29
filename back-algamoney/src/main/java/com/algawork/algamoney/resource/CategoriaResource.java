@@ -2,6 +2,7 @@ package com.algawork.algamoney.resource;
 
 import com.algawork.algamoney.model.Categoria;
 import com.algawork.algamoney.repository.CategoriaRepository;
+import com.algawork.algamoney.service.CategoriaService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.hibernate.annotations.NotFound;
@@ -21,6 +22,8 @@ public class CategoriaResource {
 
     @Autowired
     private CategoriaRepository repository;
+    @Autowired
+    private CategoriaService service;
 
     @GetMapping
     public ResponseEntity<?> listar(){
@@ -54,6 +57,20 @@ public class CategoriaResource {
               .orElse(ResponseEntity.notFound().build());
         }
 * */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void apagar(@PathVariable Long id){
+        this.repository.deleteById(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Categoria> atualizar(@PathVariable Long id, @Valid @RequestBody Categoria categoria){
+
+        Categoria categoriaSalva = service.atualizar(categoria, id);
+        return ResponseEntity.ok(categoriaSalva);
+
+    }
+
 }
 
 
