@@ -4,7 +4,6 @@ import com.algawork.algamoney.exceptionhandler.AlgamoneyExceptionHandler;
 import com.algawork.algamoney.model.Categoria;
 import com.algawork.algamoney.model.Lancamento;
 import com.algawork.algamoney.repository.LancamentoRepository;
-import com.algawork.algamoney.repository.filter.LancamentoFilter;
 import com.algawork.algamoney.service.LancamentoService;
 import com.algawork.algamoney.service.exception.PessoaNaoDisponivelException;
 import jakarta.validation.Valid;
@@ -13,12 +12,14 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +36,14 @@ public class LancamentoResource {
     private MessageSource messageSource;
 
     @GetMapping
-    public List<Lancamento> pesquisar(LancamentoFilter filter){
+    public  ResponseEntity<List<Lancamento>> pesquisar(
+            @RequestParam(value = "descricao", required = false) String descricao,
+            @RequestParam(value = "dataInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(value = "dataFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim)
+        {
 
-        List<Lancamento> lancamentos = repository.findAll();
-        //return !lancamentos.isEmpty()? ResponseEntity.ok(lancamentos) : ResponseEntity.noContent().build();
-        return repository.filtrar(filter);
+            List<Lancamento> lancamentos = repository.findWithFilters(descricao, dataInicio, dataFim);
+            return !lancamentos.isEmpty()? ResponseEntity.ok(lancamentos) : ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
